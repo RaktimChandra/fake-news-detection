@@ -1,0 +1,35 @@
+FAKE NEWS DETECTION DATASET STATISTICS
+====================================
+
+1. Dataset Size
+--------------
+True News Articles: 21,417
+Fake News Articles: 23,481
+Total Articles: 44,898
+
+2. Subject Distribution
+---------------------
+label            Fake   True
+subject                     
+Government News  1570      0
+Middle-east       778      0
+News             9050      0
+US_News           783      0
+left-news        4459      0
+politics         6841      0
+politicsNews        0  11272
+worldnews           0  10145
+
+3. Text Length Statistics
+----------------------
+Title Length (characters):
+         count       mean        std   min   25%   50%    75%    max
+label                                                               
+Fake   23481.0  94.198032  27.184433   8.0  77.0  90.0  105.0  286.0
+True   21417.0  64.667881   9.168999  26.0  59.0  64.0   70.0  133.0
+
+Article Length (characters):
+         count         mean          std  min     25%     50%     75%      max
+label                                                                         
+Fake   23481.0  2547.396235  2532.884399  1.0  1433.0  2166.0  3032.0  51794.0
+True   21417.0  2383.278517  1684.835730  1.0   914.0  2222.0  3237.0  29781.0
