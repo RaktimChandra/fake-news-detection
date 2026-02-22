@@ -1,0 +1,42 @@
+# Core ML and Deep Learning
+torch>=1.9.0
+transformers>=4.5.0
+tensorflow>=2.5.0
+
+# Web Framework
+Flask==3.0.3
+Werkzeug==3.0.4
+
+# Web Scraping for URL Analysis
+requests>=2.28.0
+beautifulsoup4>=4.11.0
+lxml>=4.9.0
+
+# Data Processing
+pandas==2.2.2
+numpy==2.1.0
+
+# NLP Tools
+nltk==3.9.1
+regex==2024.7.24
+
+# Utilities
+tqdm==4.66.5
+python-dateutil==2.9.0.post0
+
+# Visualization (optional)
+matplotlib==3.9.2
+seaborn==0.13.2
+
+# Machine Learning
+scikit-learn==1.5.1
+scipy==1.14.1
+joblib==1.4.2
+
+# Web Server Utilities
+Jinja2==3.1.4
+MarkupSafe==2.1.5
+click==8.1.7
+itsdangerous==2.2.0
+blinker==1.8.2
+colorama==0.4.6

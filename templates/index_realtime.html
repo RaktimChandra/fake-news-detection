@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Fake News Detector</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        .input-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #dee2e6;
+            background: white;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .tab-btn:hover {
+            border-color: #667eea;
+        }
+
+        .input-group {
+            display: none;
+        }
+
+        .input-group.active {
+            display: block;
+        }
+
+        input[type="url"], textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            font-size: 1em;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        input[type="url"]:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            min-height: 200px;
+            resize: vertical;
+        }
+
+        .analyze-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 20px;
+        }
+
+        .analyze-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .analyze-btn:active {
+            transform: translateY(0);
+        }
+
+        .analyze-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            display: none;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result {
+            display: none;
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 30px;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result.fake {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            color: white;
+        }
+
+        .result.real {
+            background: linear-gradient(135deg, #51cf66 0%, #37b679 100%);
+            color: white;
+        }
+
+        .result-header {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .result-icon {
+            font-size: 1.5em;
+        }
+
+        .result-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .detail-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .detail-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        .confidence-bar {
+            height: 30px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            overflow: hidden;
+            margin-top: 15px;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: white;
+            transition: width 1s ease-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .error {
+            background: #fff3cd;
+            color: #856404;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 4px solid #ffc107;
+            display: none;
+        }
+
+        .tips {
+            background: #e7f3ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+
+        .tips h3 {
+            color: #004085;
+            margin-bottom: 15px;
+        }
+
+        .tips ul {
+            color: #004085;
+            padding-left: 20px;
+        }
+
+        .tips li {
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 Real-Time Fake News Detector</h1>
+            <p>Powered by BERT AI • Instant Analysis • 94.2% Accurate</p>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-value">94.2%</div>
+                <div class="stat-label">Accuracy</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">0.35s</div>
+                <div class="stat-label">Processing Time</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">44K+</div>
+                <div class="stat-label">Training Articles</div>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="input-section">
+                <div class="input-tabs">
+                    <button class="tab-btn active" onclick="switchTab('url')">📎 URL Input</button>
+                    <button class="tab-btn" onclick="switchTab('text')">📝 Text Input</button>
+                </div>
+
+                <div id="url-input" class="input-group active">
+                    <input type="url" id="article-url" placeholder="Paste news article URL (e.g., https://example.com/article)">
+                </div>
+
+                <div id="text-input" class="input-group">
+                    <textarea id="article-text" placeholder="Paste the full article text here..."></textarea>
+                </div>
+
+                <button class="analyze-btn" onclick="analyzeArticle()">
+                    🔍 Analyze Article
+                </button>
+            </div>
+
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Analyzing article with BERT AI...</p>
+            </div>
+
+            <div class="error" id="error-message"></div>
+
+            <div class="result" id="result">
+                <div class="result-header">
+                    <span class="result-icon" id="result-icon"></span>
+                    <span id="result-text"></span>
+                </div>
+
+                <div class="confidence-bar">
+                    <div class="confidence-fill" id="confidence-fill" style="width: 0%">
+                        <span id="confidence-text"></span>
+                    </div>
+                </div>
+
+                <div class="result-details">
+                    <div class="detail-item">
+                        <div class="detail-label">Processing Time</div>
+                        <div class="detail-value" id="processing-time">-</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Word Count</div>
+                        <div class="detail-value" id="word-count">-</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Analysis Time</div>
+                        <div class="detail-value" id="timestamp">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tips">
+                <h3>💡 Tips for Real-Time Analysis</h3>
+                <ul>
+                    <li><strong>URL Method:</strong> Paste any news article URL for automatic extraction</li>
+                    <li><strong>Text Method:</strong> Copy and paste article content for direct analysis</li>
+                    <li><strong>Best Results:</strong> Use complete articles (not just headlines)</li>
+                    <li><strong>Supported:</strong> Works with most news websites and blogs</li>
+                    <li><strong>Speed:</strong> Typical analysis takes less than 1 second</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentTab = 'url';
+
+        function switchTab(tab) {
+            currentTab = tab;
+            
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Update input groups
+            document.querySelectorAll('.input-group').forEach(group => {
+                group.classList.remove('active');
+            });
+            document.getElementById(tab + '-input').classList.add('active');
+
+            // Hide result and error
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('error-message').style.display = 'none';
+        }
+
+        async function analyzeArticle() {
+            const urlInput = document.getElementById('article-url');
+            const textInput = document.getElementById('article-text');
+            const loading = document.querySelector('.loading');
+            const result = document.getElementById('result');
+            const error = document.getElementById('error-message');
+            const analyzeBtn = document.querySelector('.analyze-btn');
+
+            // Hide previous results
+            result.style.display = 'none';
+            error.style.display = 'none';
+
+            // Get input
+            const url = currentTab === 'url' ? urlInput.value.trim() : '';
+            const text = currentTab === 'text' ? textInput.value.trim() : '';
+
+            // Validate
+            if (!url && !text) {
+                showError('Please provide a URL or article text');
+                return;
+            }
+
+            // Show loading
+            loading.style.display = 'block';
+            analyzeBtn.disabled = true;
+
+            try {
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ url, text })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Analysis failed');
+                }
+
+                // Display result
+                displayResult(data);
+
+            } catch (err) {
+                showError(err.message);
+            } finally {
+                loading.style.display = 'none';
+                analyzeBtn.disabled = false;
+            }
+        }
+
+        function displayResult(data) {
+            const result = document.getElementById('result');
+            const isFake = data.prediction === 'FAKE';
+
+            // Set colors and icon
+            result.className = 'result ' + (isFake ? 'fake' : 'real');
+            document.getElementById('result-icon').textContent = isFake ? '⚠️' : '✅';
+            document.getElementById('result-text').textContent = 
+                isFake ? 'LIKELY FAKE NEWS' : 'LIKELY REAL NEWS';
+
+            // Set confidence
+            document.getElementById('confidence-text').textContent = data.confidence + '%';
+            setTimeout(() => {
+                document.getElementById('confidence-fill').style.width = data.confidence + '%';
+            }, 100);
+
+            // Set details
+            document.getElementById('processing-time').textContent = data.processing_time + 's';
+            document.getElementById('word-count').textContent = data.word_count.toLocaleString();
+            document.getElementById('timestamp').textContent = new Date(data.timestamp).toLocaleTimeString();
+
+            // Show result
+            result.style.display = 'block';
+            result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function showError(message) {
+            const error = document.getElementById('error-message');
+            error.textContent = '❌ ' + message;
+            error.style.display = 'block';
+        }
+
+        // Enter key support
+        document.getElementById('article-url').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') analyzeArticle();
+        });
+    </script>
+</body>
+</html>
