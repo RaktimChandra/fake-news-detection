@@ -197,7 +197,7 @@ Edge Cases: Excellent handling
 
 ---
 
-## 🎯 WHAT YOU'VE BUILT
+## 🎯 WHAT I HAVE BUILT
 
 ### **Technical Achievement:**
 ```
